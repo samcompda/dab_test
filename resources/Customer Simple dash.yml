@@ -1,6 +1,6 @@
-# resources:
-#   dashboards:
-#     Customer Simple dash:
-#       display_name: 'Customer Simple dash'
-#       file_path: ../src/Customer Simple dash.lvdash.json
-#       warehouse_id: '3928dda9097ceede'
+resources:
+  dashboards:
+    Customer Simple dash:
+      display_name: 'Customer Simple dash'
+      file_path: ../src/iveco-viyatests.lvdash.json
+      warehouse_id: 'efe5430979b7c1c2'
