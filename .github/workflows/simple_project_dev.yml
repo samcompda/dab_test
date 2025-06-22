@@ -1,70 +1,65 @@
-# This workflow validates, deploys, and runs the specified bundle
-# within a pre-production target named "dev".
 name: 'Deploy simple_project to DEV'
-
-
 concurrency: 1
-
 on:
   workflow_dispatch:
-
   push:
-    branches:
-      - main
-    paths:
-      - "**/*.yml"
-      - "**/*.py"
+    branches: [main]
+    paths: ['**/*.yml', '**/*.py']
 
 jobs:
-  # Used by the "pipeline_update" job to deploy the bundle.
-  # Bundle validation is automatically performed as part of this deployment.
-  # If validation fails, this workflow fails.
   deploy:
     name: 'Deploy bundle'
     runs-on: ubuntu-latest
-
     steps:
-      # Check out this repo, so that this workflow can access it.
       - uses: actions/checkout@v3
-
-      # Download the Databricks CLI.
-      # See https://github.com/databricks/setup-cli
       - uses: databricks/setup-cli@main
-
-      # Deploy the bundle to the "dev" target as defined
-      # in the bundle's settings file.
+      
+      # NEW: GCP authentication and secret retrieval
+      - name: Authenticate to GCP
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      
+      - name: Get Databricks host from GCP
+        id: get-db-host
+        uses: 'google-github-actions/get-secretmanager-secrets@v1'
+        with:
+          secrets: |-
+            projects/metal-cascade-460422-t6/secrets/gcp_dev_databricks_host:latest
+      
       - run: databricks bundle deploy
         working-directory: .
         env:
-          # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
+          DATABRICKS_HOST: ${{ steps.get-db-host.outputs.gcp_dev_databricks_host }}  # Updated
           DATABRICKS_BUNDLE_ENV: dev
 
-  # Validate, deploy, and then run the bundle.
   pipeline_update:
     name: 'Run pipeline update'
     runs-on: ubuntu-latest
-
-    # Run the "deploy" job first.
-    needs:
-      - deploy
-
+    needs: [deploy]
     steps:
-      # Check out this repo, so that this workflow can access it.
       - uses: actions/checkout@v3
-
-      # Use the downloaded Databricks CLI.
       - uses: databricks/setup-cli@main
-
-      # Run the Databricks workflow named "my-job" as defined in the
-      # bundle that was just deployed.
+      
+      # NEW: Same GCP steps as above
+      - name: Authenticate to GCP
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      
+      - name: Get Databricks host from GCP
+        id: get-db-host
+        uses: 'google-github-actions/get-secretmanager-secrets@v1'
+        with:
+          secrets: |-
+            projects/metal-cascade-460422-t6/secrets/gcp_dev_databricks_host:latest
+      
       - run: databricks bundle run my-job --refresh-all
         working-directory: .
         env:
-          # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
+          DATABRICKS_HOST: ${{ steps.get-db-host.outputs.gcp_dev_databricks_host }}  # Updated
           DATABRICKS_BUNDLE_ENV: dev
