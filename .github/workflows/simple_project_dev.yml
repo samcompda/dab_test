@@ -1,20 +1,19 @@
 # This workflow validates, deploys, and runs the specified bundle
 # within a pre-production target named "dev".
-name: 'Dev deployment'
+name: 'Deploy simple_project to DEV'
 
-# Ensure that only a single job or workflow using the same concurrency group
-# runs at a time.
+
 concurrency: 1
 
-# Trigger this workflow whenever a pull request is opened against the repo's
-# main branch or an existing pull request's head branch is updated.
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  workflow_dispatch:
+
+  push:
     branches:
       - main
+    paths:
+      - "**/*.yml"
+      - "**/*.py"
 
 jobs:
   # Used by the "pipeline_update" job to deploy the bundle.
