@@ -1,0 +1,13 @@
+# The main pipeline for ludia_dab_test
+resources:
+  pipelines:
+    ludia_dab_test_pipeline:
+      name: ludia_dab_test_pipeline
+      catalog: satya_sure_catalog
+      schema: ludia_schema_${bundle.target}
+      libraries:
+        - notebook:
+            path: ../src/dlt_pipeline.ipynb
+
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}/src

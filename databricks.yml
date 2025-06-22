@@ -1,0 +1,28 @@
+# This is a Databricks asset bundle definition for ludia_dab_test.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: ludia_dab_test
+  uuid: 85f6bb8e-a8a1-4aa5-8e52-85cb0b6cf0b6
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://416411475796958.8.gcp.databricks.com
+
+  prod:
+    mode: production
+    workspace:
+      host: https://416411475796958.8.gcp.databricks.com
+      root_path: /Workspace/Users/satyendranath.sure@databricks.com/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: satyendranath.sure@databricks.com
+        level: CAN_MANAGE
