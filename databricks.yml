@@ -17,7 +17,7 @@ targets:
     default: true
     workspace:
       host: https://2293771710567732.2.gcp.databricks.com
-      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
+      # root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
 
   staging:
     # For staging deployments, we only have a single copy, so we override the
