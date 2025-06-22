@@ -41,10 +41,13 @@ jobs:
 
       # Access the secret from Secret Manager
       - id: 'get-databricks-host'
-        uses: 'google-github-actions/secretmanager-access@v1'
+        uses: 'google-github-actions/get-secretmanager-secrets@v2' # Corrected action name and version
         with:
-          secret: 'gcp_dev_databricks_host'
-          project_id: 'metal-cascade-460422-t6'
+          # The 'secrets' input is a list of OUTPUTNAME:SECRET.
+          # Here, 'DATABRICKS_HOST_SECRET' will be the output variable name.
+          # The format for the secret can be short or long. Using short form: <project-id>/<secret-id>
+          secrets: |-
+            DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
 
       # Download the Databricks CLI.
       # See https://github.com/databricks/setup-cli
@@ -58,7 +61,7 @@ jobs:
           # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host.outputs.payload }} # Use the secret value here
+          DATABRICKS_HOST: ${{ steps.get-databricks-host.outputs.DATABRICKS_HOST_VALUE }} # Use the output variable name
           DATABRICKS_BUNDLE_ENV: dev
 
   # Validate, deploy, and then run the bundle.
@@ -85,10 +88,10 @@ jobs:
 
       # Access the secret from Secret Manager (needed again)
       - id: 'get-databricks-host-for-run'
-        uses: 'google-github-actions/secretmanager-access@v1'
+        uses: 'google-github-actions/get-secretmanager-secrets@v2' # Corrected action name and version
         with:
-          secret: 'gcp_dev_databricks_host'
-          project_id: 'metal-cascade-460422-t6'
+          secrets: |-
+            DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
 
       # Use the downloaded Databricks CLI.
       - uses: databricks/setup-cli@main
@@ -101,5 +104,5 @@ jobs:
           # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.payload }} # Use the secret value here
+          DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }} # Use the output variable name
           DATABRICKS_BUNDLE_ENV: dev
