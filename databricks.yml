@@ -16,13 +16,26 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://416411475796958.8.gcp.databricks.com
+      host: https://2293771710567732.2.gcp.databricks.com
+      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
+
+  staging:
+    # For staging deployments, we only have a single copy, so we override the
+    # workspace.root_path default of
+    # /Users/${workspace.current_user.userName}/.bundle/${bundle.target}/${bundle.name}
+    # to a path that is not specific to the current user.
+    mode: staging
+    workspace:
+      host: https://4177244334559597.7.gcp.databricks.com
+      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
+    run_as:
+      user_name: ${workspace.current_user.userName}
 
   prod:
     mode: production
     workspace:
-      host: https://416411475796958.8.gcp.databricks.com
-      root_path: /Workspace/Users/satyendranath.sure@databricks.com/.bundle/${bundle.name}/${bundle.target}
+      host: https://3971713812888778.8.gcp.databricks.com
+      root_path: /Shared/.bundle/${bundle.target}/${bundle.name}
     permissions:
       - user_name: satyendranath.sure@databricks.com
         level: CAN_MANAGE

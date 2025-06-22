@@ -1,6 +1,0 @@
-resources:
-  dashboards:
-    nyc_taxi_trip_analysis:
-      display_name: 'NYC Taxi Trip'
-      file_path: ../src/Customer Simple dash.lvdash.json
-      warehouse_id: 'e69629978b5a7e40'

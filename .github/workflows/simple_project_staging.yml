@@ -42,7 +42,7 @@ jobs:
 
       - run: databricks bundle deploy -t staging
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_BUNDLE_ENV: staging
 
   pipeline_update:
@@ -74,5 +74,5 @@ jobs:
           set -o pipefail
           databricks bundle run notebook_validation_job -t staging --refresh-all 2>&1 | tee output.log
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_BUNDLE_ENV: staging
