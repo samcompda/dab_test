@@ -34,18 +34,22 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           project_id: 'metal-cascade-460422-t6'
-          # You might need to configure Workload Identity Federation for your GCP service account
-          # See https://github.com/google-github-actions/auth#setting-up-workload-identity-federation
-          # For example, if you're using a service account key directly (less recommended for production):
-          # credentials_json: ${{ secrets.GCP_SA_KEY }}
+          # !!! YOU MUST REPLACE THESE WITH YOUR ACTUAL VALUES !!!
+          workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME'
+          service_account: 'your-service-account-email@metal-cascade-460422-t6.iam.gserviceaccount.com' # Optional but recommended
+          # Remove these, as they are for a different auth method or default to true
+          # create_credentials_file: true
+          # export_environment_variables: true
+          # universe: googleapis.com
+          # cleanup_credentials: true
+          # access_token_lifetime: 3600s
+          # access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+          # id_token_include_email: false
 
       # Access the secret from Secret Manager
       - id: 'get-databricks-host'
-        uses: 'google-github-actions/get-secretmanager-secrets@v2' # Corrected action name and version
+        uses: 'google-github-actions/get-secretmanager-secrets@v2'
         with:
-          # The 'secrets' input is a list of OUTPUTNAME:SECRET.
-          # Here, 'DATABRICKS_HOST_SECRET' will be the output variable name.
-          # The format for the secret can be short or long. Using short form: <project-id>/<secret-id>
           secrets: |-
             DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
 
@@ -61,7 +65,7 @@ jobs:
           # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host.outputs.DATABRICKS_HOST_VALUE }} # Use the output variable name
+          DATABRICKS_HOST: ${{ steps.get-databricks-host.outputs.DATABRICKS_HOST_VALUE }}
           DATABRICKS_BUNDLE_ENV: dev
 
   # Validate, deploy, and then run the bundle.
@@ -85,10 +89,14 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           project_id: 'metal-cascade-460422-t6'
+          # !!! YOU MUST REPLACE THESE WITH YOUR ACTUAL VALUES !!!
+          # workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME'
+          workload_identity_provider: 'projects/397789125460/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'dabs-test-062025@metal-cascade-460422-t6.iam.gserviceaccount.com' # Optional but recommended
 
       # Access the secret from Secret Manager (needed again)
       - id: 'get-databricks-host-for-run'
-        uses: 'google-github-actions/get-secretmanager-secrets@v2' # Corrected action name and version
+        uses: 'google-github-actions/get-secretmanager-secrets@v2'
         with:
           secrets: |-
             DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
@@ -104,5 +112,5 @@ jobs:
           # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }} # Use the output variable name
+          DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }}
           DATABRICKS_BUNDLE_ENV: dev
