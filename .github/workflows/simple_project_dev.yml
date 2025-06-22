@@ -114,3 +114,4 @@ jobs:
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
           DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }}
           DATABRICKS_BUNDLE_ENV: dev
+          
