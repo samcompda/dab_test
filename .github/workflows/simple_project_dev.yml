@@ -41,13 +41,6 @@ jobs:
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
           DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
           DATABRICKS_BUNDLE_ENV: dev
-        run: |
-          cat << EOF > ~/.databrickscfg
-          [M2M]
-          host = $DATABRICKS_HOST
-          client_id = $DATABRICKS_CLIENT_ID
-          client_secret = $DATABRICKS_CLIENT_SECRET
-          EOF
 
   # Validate, deploy, and then run the bundle.
   pipeline_update:
