@@ -46,12 +46,14 @@ jobs:
           # access_token_scopes: https://www.googleapis.com/auth/cloud-platform
           # id_token_include_email: false
 
-      # Access the secret from Secret Manager
-      - id: 'get-databricks-host'
+      # Access the secrets from Secret Manager
+      - id: 'get-databricks-secrets' # Changed ID for clarity
         uses: 'google-github-actions/get-secretmanager-secrets@v2'
         with:
           secrets: |-
             DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
+            DATABRICKS_CLIENT_ID_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_client_id
+            DATABRICKS_CLIENT_SECRET_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_client_secret
 
       # Download the Databricks CLI.
       # See https://github.com/databricks/setup-cli
@@ -62,56 +64,56 @@ jobs:
       - run: databricks bundle deploy
         working-directory: .
         env:
-          # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host.outputs.DATABRICKS_HOST_VALUE }}
+          # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }} # This line can likely be removed if using client ID/secret
+          DATABRICKS_CLIENT_ID: ${{ steps.get-databricks-secrets.outputs.DATABRICKS_CLIENT_ID_VALUE }}
+          DATABRICKS_CLIENT_SECRET: ${{ steps.get-databricks-secrets.outputs.DATABRICKS_CLIENT_SECRET_VALUE }}
+          DATABRICKS_HOST: ${{ steps.get-databricks-secrets.outputs.DATABRICKS_HOST_VALUE }}
           DATABRICKS_BUNDLE_ENV: dev
 
-  # Validate, deploy, and then run the bundle.
-  pipeline_update:
-    name: 'Run pipeline update'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write' # This is required for authenticating to GCP
+  # # Validate, deploy, and then run the bundle.
+  # pipeline_update:
+  #   name: 'Run pipeline update'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write' # This is required for authenticating to GCP
 
-    # Run the "deploy" job first.
-    needs:
-      - deploy
+  #   # Run the "deploy" job first.
+  #   needs:
+  #     - deploy
 
-    steps:
-      # Check out this repo, so that this workflow can access it.
-      - uses: actions/checkout@v3
+  #   steps:
+  #     # Check out this repo, so that this workflow can access it.
+  #     - uses: actions/checkout@v3
 
-      # Authenticate to Google Cloud (needed again if this job runs separately or on a different runner)
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          project_id: 'metal-cascade-460422-t6'
-          # !!! YOU MUST REPLACE THESE WITH YOUR ACTUAL VALUES !!!
-          # workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME'
-          workload_identity_provider: 'projects/397789125460/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'dabs-test-062025@metal-cascade-460422-t6.iam.gserviceaccount.com' # Optional but recommended
+  #     # Authenticate to Google Cloud (needed again if this job runs separately or on a different runner)
+  #     - id: 'auth'
+  #       uses: 'google-github-actions/auth@v2'
+  #       with:
+  #         project_id: 'metal-cascade-460422-t6'
+  #         # !!! YOU MUST REPLACE THESE WITH YOUR ACTUAL VALUES !!!
+  #         # workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME'
+  #         workload_identity_provider: 'projects/397789125460/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+  #         service_account: 'dabs-test-062025@metal-cascade-460422-t6.iam.gserviceaccount.com' # Optional but recommended
 
-      # Access the secret from Secret Manager (needed again)
-      - id: 'get-databricks-host-for-run'
-        uses: 'google-github-actions/get-secretmanager-secrets@v2'
-        with:
-          secrets: |-
-            DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
+  #     # Access the secret from Secret Manager (needed again)
+  #     - id: 'get-databricks-host-for-run'
+  #       uses: 'google-github-actions/get-secretmanager-secrets@v2'
+  #       with:
+  #         secrets: |-
+  #           DATABRICKS_HOST_VALUE: metal-cascade-460422-t6/gcp_dev_databricks_host
 
-      # Use the downloaded Databricks CLI.
-      - uses: databricks/setup-cli@main
+  #     # Use the downloaded Databricks CLI.
+  #     - uses: databricks/setup-cli@main
 
-      # Run the Databricks workflow named "my-job" as defined in the
-      # bundle that was just deployed.
-      - run: databricks bundle run my-job --refresh-all
-        working-directory: .
-        env:
-          # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
-          DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }}
-          DATABRICKS_BUNDLE_ENV: dev
+  #     # Run the Databricks workflow named "my-job" as defined in the
+  #     # bundle that was just deployed.
+  #     - run: databricks bundle run my-job --refresh-all
+  #       working-directory: .
+  #       env:
+  #         # DATABRICKS_TOKEN: ${{ secrets.DEV_DATABRICKS_PERSONAL_TOKEN }}
+  #         DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_SP_CLIENT }}
+  #         DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
+  #         DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }}
+  #         DATABRICKS_BUNDLE_ENV: dev
           
