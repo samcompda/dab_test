@@ -34,17 +34,9 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           project_id: 'metal-cascade-460422-t6'
-          # !!! YOU MUST REPLACE THESE WITH YOUR ACTUAL VALUES !!!
-          workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME'
-          service_account: 'your-service-account-email@metal-cascade-460422-t6.iam.gserviceaccount.com' # Optional but recommended
-          # Remove these, as they are for a different auth method or default to true
-          # create_credentials_file: true
-          # export_environment_variables: true
-          # universe: googleapis.com
-          # cleanup_credentials: true
-          # access_token_lifetime: 3600s
-          # access_token_scopes: https://www.googleapis.com/auth/cloud-platform
-          # id_token_include_email: false
+          workload_identity_provider: 'projects/397789125460/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'dabs-test-062025@metal-cascade-460422-t6.iam.gserviceaccount.com'
+
 
       # Access the secret from Secret Manager
       - id: 'get-databricks-host'
@@ -114,4 +106,3 @@ jobs:
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_SP_TOKEN }}
           DATABRICKS_HOST: ${{ steps.get-databricks-host-for-run.outputs.DATABRICKS_HOST_VALUE }}
           DATABRICKS_BUNDLE_ENV: dev
-          
